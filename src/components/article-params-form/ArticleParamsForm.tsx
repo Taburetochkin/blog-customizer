@@ -7,20 +7,25 @@ import { Separator } from 'src/ui/separator';
 import { Text } from 'src/ui/text';
 
 import { 
+	ArticleStateType,
 	defaultArticleState,
 	fontFamilyOptions,
 	fontSizeOptions,
 	fontColors,
 	backgroundColors,
-	contentWidthArr
-
+	contentWidthArr,
+	OptionType
  } from 'src/constants/articleProps';
 
 import clsx from 'clsx';
 import styles from './ArticleParamsForm.module.scss';
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 
-export const ArticleParamsForm = () => {
+type ArticleParamsFormProps = {
+	setArticleFormState: (state: ArticleStateType) => void;
+}
+
+export const ArticleParamsForm = ({setArticleFormState}: ArticleParamsFormProps) => {
 	const [isFormOpen, setIsFormOpen] = useState(false);
 
 	const toggleForm = () => {
@@ -29,16 +34,61 @@ export const ArticleParamsForm = () => {
 
 	const [formData, setFormData] = useState({
 		fontFamilyOption: defaultArticleState.fontFamilyOption,
-		fontSizeOptions: defaultArticleState.fontSizeOption,
-		fontColors: defaultArticleState.fontColor,
-		backgroundColors: defaultArticleState.backgroundColor,
+		fontSizeOption: defaultArticleState.fontSizeOption,
+		fontColor: defaultArticleState.fontColor,
+		backgroundColor: defaultArticleState.backgroundColor,
 		contentWidthArr: defaultArticleState.contentWidth
 	});
+
+	const setFontFamily = (event: OptionType) => {
+		setFormData({...formData, fontFamilyOption: event});
+	}
+
+	const setFontSize = (event: OptionType) => {
+		setFormData({...formData, fontSizeOption: event});
+	}
+
+	const setFontColor = (event: OptionType) => {
+		setFormData({...formData, fontColor: event});
+	}
+
+	const setBackgroundColor = (event: OptionType) => {
+		setFormData({...formData, backgroundColor: event});
+	}
+
+	const setContentWidth = (event: OptionType) => {
+		setFormData({...formData, contentWidthArr: event});
+	}
+
+	const handleReset = (event: FormEvent) => {
+		event.preventDefault();
+		setArticleFormState(defaultArticleState);
+		setFormData({
+			fontFamilyOption: defaultArticleState.fontFamilyOption,
+			fontSizeOption: defaultArticleState.fontSizeOption,
+			fontColor: defaultArticleState.fontColor,
+			backgroundColor: defaultArticleState.backgroundColor,
+			contentWidthArr: defaultArticleState.contentWidth
+		});
+		setIsFormOpen(false);
+	}
+
+	const handleSubmit = (event:FormEvent) => {
+		event.preventDefault();
+		setArticleFormState({
+			fontFamilyOption: formData.fontFamilyOption,
+			fontSizeOption: formData.fontSizeOption,
+			fontColor: formData.fontColor,
+			backgroundColor: formData.backgroundColor,
+			contentWidth: formData.contentWidthArr
+		});
+		setIsFormOpen(false);
+	}
 	return (
 		<>
 			<ArrowButton isOpen={isFormOpen} onClick={toggleForm} />
 			<aside className={clsx(styles.container, { [styles.container_open]: isFormOpen })}>
-				<form className={styles.form}>
+				<form className={styles.form} onSubmit={handleSubmit} onReset={handleReset}>
 					<Text size={31} weight={800} uppercase>
 						Задайте параметры
 					</Text>
@@ -46,28 +96,33 @@ export const ArticleParamsForm = () => {
 					 selected={formData.fontFamilyOption}
 					 options={fontFamilyOptions}
 					 title='Шрифт'
+					 onChange={setFontFamily}
 					/>
 					<RadioGroup 
-					 selected={formData.fontSizeOptions}
+					 selected={formData.fontSizeOption}
 					 options={fontSizeOptions}
 					 name='Размер Шрифта'
-					 title='Размер Шрифта' 
+					 title='Размер Шрифта'
+					 onChange={setFontSize} 
 					/>
 					<Select
-					 selected={formData.fontColors}
+					 selected={formData.fontColor}
 					 options={fontColors}
 					 title='Цвет Шрифта'
+					 onChange={setFontColor}
 					/>
 					<Separator />
 					<Select 
-					 selected={formData.backgroundColors}
+					 selected={formData.backgroundColor}
 					 options={backgroundColors}
 					 title='Цвет Фона'
+					 onChange={setBackgroundColor}
 					/>
 					<Select 
 					 selected={formData.contentWidthArr}
 					 options={contentWidthArr}
 					 title='Ширина Контента'
+					 onChange={setContentWidth}
 					/>
 					<div className={styles.bottomContainer}>
 						<Button title='Сбросить' htmlType='reset' type='clear' />
