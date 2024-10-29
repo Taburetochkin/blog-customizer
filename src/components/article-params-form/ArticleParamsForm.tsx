@@ -110,6 +110,7 @@ export const ArticleParamsForm = ({setArticleFormState}: ArticleParamsFormProps)
 
 		return () => {
 			document.removeEventListener('mousedown', handleMouseDown);
+			document.removeEventListener('keydown', handleEscapeDown);
 		}
 		
 	}, [isFormOpen]);
