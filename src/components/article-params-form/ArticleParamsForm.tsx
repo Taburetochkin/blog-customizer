@@ -19,7 +19,7 @@ import {
 
 import clsx from 'clsx';
 import styles from './ArticleParamsForm.module.scss';
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect, useRef } from 'react';
 
 type ArticleParamsFormProps = {
 	setArticleFormState: (state: ArticleStateType) => void;
@@ -84,10 +84,39 @@ export const ArticleParamsForm = ({setArticleFormState}: ArticleParamsFormProps)
 		});
 		setIsFormOpen(false);
 	}
+
+	const formRef = useRef<HTMLDivElement>(null);
+	
+	useEffect(() => {
+		const handleMouseDown = (event: MouseEvent): void => {
+			if(formRef.current && !formRef.current.contains(event.target as Node)) {
+				setIsFormOpen(false);
+			}
+		};
+
+		const handleEscapeDown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				setIsFormOpen(false);
+			}
+		}
+
+		if(isFormOpen) {
+			document.addEventListener('mousedown', handleMouseDown);
+			document.addEventListener('keydown', handleEscapeDown);
+		} else {
+			document.removeEventListener('mousedown', handleMouseDown);
+			document.removeEventListener('keydown', handleEscapeDown);
+		}
+
+		return () => {
+			document.removeEventListener('mousedown', handleMouseDown);
+		}
+		
+	}, [isFormOpen]);
 	return (
 		<>
 			<ArrowButton isOpen={isFormOpen} onClick={toggleForm} />
-			<aside className={clsx(styles.container, { [styles.container_open]: isFormOpen })}>
+			<aside className={clsx(styles.container, { [styles.container_open]: isFormOpen })} ref={formRef}>
 				<form className={styles.form} onSubmit={handleSubmit} onReset={handleReset}>
 					<Text size={31} weight={800} uppercase>
 						Задайте параметры
